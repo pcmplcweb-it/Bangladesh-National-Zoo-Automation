@@ -9,7 +9,7 @@ A React website for the Bangladesh National Zoo (Mirpur, Dhaka) with a realistic
 - **Real zoo map** (Leaflet)
   - Satellite imagery (Esri) or street map (OpenStreetMap), with everything outside the zoo dimmed.
   - The zoo's real boundary, North and South lakes, enclosure outlines and internal roads from OpenStreetMap.
-  - 30 zones pinned at their real coordinates, with search (English/বাংলা), category filters, info cards, real photos, and Google Maps walking directions for each zone.
+  - 40 places pinned at their real coordinates, with search (English/বাংলা), category filters, info cards, real photos, and Google Maps walking directions for each zone.
   - **Virtual walk** along the real roads (34 stops) where the camera follows the walker, with Google 360° Street View at each stop where available.
   - **Google** mode showing Google Maps' own satellite map and labels.
   - "Where am I?" geolocation for visitors inside the zoo, night mode, ambient sound and full screen.
