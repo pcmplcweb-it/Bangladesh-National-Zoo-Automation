@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { ZONES, CATEGORIES, TOUR_STOPS, ZOO_INFO, NO_STREETVIEW, zoneById, animalById } from '../data/zoo';
+import { ZONES, CATEGORIES, TOUR_STOPS, ZOO_INFO, NO_STREETVIEW, STREETVIEW_OK, zoneById, animalById } from '../data/zoo';
 import { PHOTOS } from '../data/photos';
 import { zonePhoto } from '../data/media';
 import { TILES, OSM_ATTRIBUTION, zooBounds, addZooFrame, addEnclosures, zoneIcon } from './mapLayers';
@@ -9,7 +9,7 @@ import { buildTourRoute, pointAt } from './mapRoute';
 import { startAmbience, stopAmbience } from './ambientSound';
 import './ZooMap.css';
 
-const WALK_SPEED = 32; // metres of route per second of animation
+const WALK_SPEED = 45; // metres of route per second of animation
 const STOP_PAUSE = 8000; // ms at each stop — time to look around in Street View
 const TOUR_ZOOM = 18.5;
 
@@ -191,6 +191,7 @@ export default function ZooMap({ autoTour = false, height = '100vh', showIntroHi
         const finished = nextStop === route.stopDist.length - 1;
         state = { ...s, playing: !finished, dist, stop: nextStop, atStop: true };
         setSelected(TOUR_STOPS[nextStop]);
+        setMedia(STREETVIEW_OK.has(TOUR_STOPS[nextStop]) ? 'sv' : 'photo');
         setPanelOpen(true);
         pauseUntil = now + STOP_PAUSE;
         if (finished) flash('🎉 Tour complete — welcome back to the main gate!');
@@ -210,7 +211,6 @@ export default function ZooMap({ autoTour = false, height = '100vh', showIntroHi
   const startTour = useCallback((fromStop) => {
     const map = mapRef.current;
     setBase((b) => (b === 'google' ? 'satellite' : b));
-    setMedia('sv');
     const { routeAll, routeDone } = layersRef.current;
     routeAll.addTo(map);
     routeDone.addTo(map);
@@ -221,6 +221,7 @@ export default function ZooMap({ autoTour = false, height = '100vh', showIntroHi
     else next = { ...s, playing: true };
     const p = placeWalker(next.dist);
     map.setView(p, TOUR_ZOOM, { animate: true });
+    if (next.atStop) setMedia(STREETVIEW_OK.has(TOUR_STOPS[next.stop]) ? 'sv' : 'photo');
     if (next.atStop) setSelected(TOUR_STOPS[next.stop]);
     setPanelOpen(true);
     setHint(false);
@@ -237,6 +238,7 @@ export default function ZooMap({ autoTour = false, height = '100vh', showIntroHi
     tourRef.current = next;
     setTour(next);
     setSelected(TOUR_STOPS[stop]);
+    setMedia(STREETVIEW_OK.has(TOUR_STOPS[stop]) ? 'sv' : 'photo');
     setPanelOpen(true);
     mapRef.current.setView(placeWalker(dist), TOUR_ZOOM);
   };

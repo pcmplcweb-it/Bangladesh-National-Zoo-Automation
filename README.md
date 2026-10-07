@@ -10,7 +10,8 @@ A React website for the Bangladesh National Zoo (Mirpur, Dhaka) with a realistic
   - Satellite imagery (Esri) or street map (OpenStreetMap), with everything outside the zoo dimmed.
   - The zoo's real boundary, North and South lakes, enclosure outlines and internal roads from OpenStreetMap.
   - 30 zones pinned at their real coordinates, with search (English/বাংলা), category filters, info cards, real photos, and Google Maps walking directions for each zone.
-  - **Virtual walk** along the real roads (28 stops) where the camera follows the walker.
+  - **Virtual walk** along the real roads (34 stops) where the camera follows the walker, with Google 360° Street View at each stop where available.
+  - **Google** mode showing Google Maps' own satellite map and labels.
   - "Where am I?" geolocation for visitors inside the zoo, night mode, ambient sound and full screen.
 - **Pages** – Home, Zoo Map, Virtual Tour, Animals (real photos where available), Plan Your Visit (hours, ticket calculator and e-ticket, directions, rules), Facilities, About (with photo and map credits), Contact.
 - Responsive for desktop, tablet and mobile.
@@ -29,7 +30,7 @@ npm run preview    # serve the production build
 | What | Source | Licence |
 |---|---|---|
 | Zoo boundary, lakes, roads, enclosures (`src/data/zooGeo.js`) | © OpenStreetMap contributors | ODbL 1.0 |
-| Zone coordinates (`src/data/zoo.js`) | OSM enclosure data, cross-checked with the zoo's official board map | ODbL 1.0 |
+| Zone coordinates (`src/data/zoo.js`) | Google Maps place labels where Google has one (checked against OSM to within ~10 m at the gate, mosque, tiger and rhino); OSM enclosure data elsewhere | — |
 | Photos (`public/images`, `src/data/photos.js`) | Wikimedia Commons contributors | CC BY / CC BY-SA (per photo, listed on the About page) |
 | Satellite tiles | Esri World Imagery | Esri terms of use |
 | Street tiles | tile.openstreetmap.org | [OSM tile usage policy](https://operations.osmfoundation.org/policies/tiles/) |

@@ -368,6 +368,38 @@ export const PHOTOS = {
     "license": "CC BY-SA 4.0",
     "source": "https://commons.wikimedia.org/wiki/File:Duck_of_Bangladesh_national_zoo.jpg",
     "atZoo": true
+  },
+  "a-ostrich": {
+    "src": "/images/animals/ostrich.jpg",
+    "title": "Ostrich at Bangladesh National Zoo 01",
+    "author": "Borhan",
+    "license": "CC BY-SA 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Ostrich_at_Bangladesh_National_Zoo_01.jpg",
+    "atZoo": true
+  },
+  "a-bear": {
+    "src": "/images/animals/bear.jpg",
+    "title": "Ursus thibetanus 3 (Wroclaw zoo)",
+    "author": "Guérin Nicolas (messages)",
+    "license": "CC BY-SA 3.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Ursus_thibetanus_3_(Wroclaw_zoo).JPG",
+    "atZoo": false
+  },
+  "a-camel": {
+    "src": "/images/animals/camel.jpg",
+    "title": "Camelus dromedarius in Nuweiba",
+    "author": "Florian Prischl",
+    "license": "CC BY-SA 3.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Camelus_dromedarius_in_Nuweiba.jpg",
+    "atZoo": false
+  },
+  "a-llama": {
+    "src": "/images/animals/llama.jpg",
+    "title": "Llamas, Vernagt-Stausee, Italy",
+    "author": "Andrija12345678",
+    "license": "CC BY-SA 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Llamas,_Vernagt-Stausee,_Italy.jpg",
+    "atZoo": false
   }
 };
 
