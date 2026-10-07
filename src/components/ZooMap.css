@@ -67,6 +67,14 @@
 }
 .zm-me { width: 20px; height: 20px; border-radius: 50%; background: #2f80ff; border: 3px solid #fff; box-shadow: 0 0 0 8px rgba(47,128,255,.3); }
 
+/* Google Maps embed mode */
+.zm-google { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; z-index: 600; background: #0d2416; }
+.zm-hide { display: none !important; }
+.g-logo {
+  display: inline-grid; place-items: center; width: 16px; height: 16px; border-radius: 50%; font: 800 11px Arial, sans-serif;
+  background: conic-gradient(#ea4335 0 25%, #fbbc05 0 50%, #34a853 0 75%, #4285f4 0); color: #fff;
+}
+
 /* ---------- overlay UI ---------- */
 .zm-top-left { position: absolute; top: 16px; left: 16px; width: min(380px, calc(100% - 92px)); z-index: 800; }
 .zm-search {
@@ -109,9 +117,23 @@
 }
 @keyframes zm-slide { from { opacity: 0; transform: translateX(20px); } }
 .zm-panel-close { position: absolute; right: 12px; top: 12px; z-index: 2; border: 0; background: rgba(255,255,255,.9); width: 30px; height: 30px; border-radius: 50%; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,.2); }
-.zm-panel-photo { margin: -18px -18px 14px; position: relative; }
-.zm-panel-photo img { width: 100%; height: 170px; object-fit: cover; display: block; border-radius: 18px 18px 0 0; }
-.zm-panel-photo figcaption { position: absolute; right: 8px; bottom: 6px; font-size: 10px; color: #fff; text-shadow: 0 1px 3px #000; }
+.zm-panel.wide { width: min(470px, calc(100% - 32px)); }
+.zm-media { position: relative; margin: -18px -18px 14px; border-radius: 18px 18px 0 0; overflow: hidden; background: #0d2416; }
+.zm-panel-photo { margin: 0; position: relative; }
+.zm-panel-photo img { width: 100%; height: 210px; object-fit: cover; display: block; animation: zm-fadein .5s ease; }
+.zm-panel.wide .zm-panel-photo img, .zm-panel.wide .zm-sv { height: 290px; }
+@keyframes zm-fadein { from { opacity: 0; transform: scale(1.04); } }
+.zm-panel-photo figcaption {
+  position: absolute; left: 0; right: 0; bottom: 0; padding: 18px 10px 6px; font-size: 10px; color: #fff;
+  background: linear-gradient(transparent, rgba(0,0,0,.6)); text-align: right;
+}
+.zm-sv { display: block; width: 100%; height: 230px; border: 0; }
+.zm-media-empty { height: 120px; display: grid; place-items: center; font-size: 54px; background: color-mix(in srgb, var(--c) 18%, white); }
+.zm-media-tabs { position: absolute; left: 10px; top: 10px; display: flex; gap: 4px; background: rgba(0,0,0,.55); padding: 3px; border-radius: 999px; backdrop-filter: blur(6px); }
+.zm-media-tabs button { border: 0; background: none; color: #fff; font: 600 11px var(--font); padding: 5px 10px; border-radius: 999px; cursor: pointer; }
+.zm-media-tabs button.on { background: #fff; color: #1d2b1f; }
+.zm-media:has(.zm-sv) .zm-media-tabs { top: auto; bottom: 30px; }
+.zm-media-tag { position: absolute; right: 50px; top: 12px; background: #ff7a29; color: #fff; font: 700 11px var(--font); padding: 4px 10px; border-radius: 999px; }
 .zm-panel-head { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; padding-right: 28px; }
 .zm-panel-head small { color: var(--c); font-weight: 700; text-transform: uppercase; font-size: 11px; letter-spacing: 1px; }
 .zm-panel-head h3 { margin: 2px 0 0; font-size: 18px; line-height: 1.25; }
@@ -121,6 +143,7 @@
 .zm-animals { list-style: none; padding: 0; margin: 0 0 12px; display: grid; gap: 8px; }
 .zm-animals li { display: flex; gap: 10px; background: #f6faf3; border-radius: 12px; padding: 10px; }
 .zm-animals li > span { font-size: 26px; }
+.zm-animals li > img { width: 48px; height: 48px; border-radius: 10px; object-fit: cover; flex: none; }
 .zm-animals b { font-size: 14px; }
 .zm-animals em { font-style: normal; color: #888; font-size: 13px; }
 .zm-animals small { display: block; color: #666; font-size: 12px; margin-top: 2px; line-height: 1.45; }
@@ -130,6 +153,7 @@
   background: var(--green); color: #fff; font: 600 13px var(--font); white-space: nowrap;
 }
 .zm-act.alt { background: var(--orange); }
+.zm-act.ghost { background: #fff; color: var(--green); border: 1.5px solid var(--green); }
 
 .zm-tour { position: absolute; z-index: 900; left: 50%; bottom: 26px; transform: translateX(-50%); width: max-content; max-width: calc(100% - 32px); }
 .zm-tour-start {
@@ -173,7 +197,8 @@
   .zm-mode-label { display: none; }
   .zm-mode button { padding: 7px 9px; font-size: 15px; }
   .zm-panel { right: 12px; left: 12px; width: auto; top: auto; bottom: 120px; max-height: 48%; }
-  .zm-panel-photo img { height: 130px; }
+  .zm-panel-photo img, .zm-sv, .zm-panel.wide .zm-panel-photo img, .zm-panel.wide .zm-sv { height: 170px; }
+  .zm-panel.wide { width: auto; }
   .zm-tour.active { flex-direction: column; gap: 8px; }
   .zm-tour-info { min-width: 0; }
   .zm-hint, .zm-toast { white-space: normal; text-align: center; width: 80%; }

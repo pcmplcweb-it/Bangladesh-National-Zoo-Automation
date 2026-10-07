@@ -1,18 +1,24 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { ZONES, CATEGORIES, TOUR_STOPS, ZOO_INFO, zoneById, animalById } from '../data/zoo';
+import { ZONES, CATEGORIES, TOUR_STOPS, ZOO_INFO, NO_STREETVIEW, zoneById, animalById } from '../data/zoo';
 import { PHOTOS } from '../data/photos';
+import { zonePhoto } from '../data/media';
 import { TILES, OSM_ATTRIBUTION, zooBounds, addZooFrame, addEnclosures, zoneIcon } from './mapLayers';
 import { buildTourRoute, pointAt } from './mapRoute';
 import { startAmbience, stopAmbience } from './ambientSound';
 import './ZooMap.css';
 
 const WALK_SPEED = 32; // metres of route per second of animation
-const STOP_PAUSE = 4500; // ms at each stop
+const STOP_PAUSE = 8000; // ms at each stop — time to look around in Street View
 const TOUR_ZOOM = 18.5;
 
 const directionsUrl = ([lat, lng]) => `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=walking`;
+const gmapsPlaceUrl = ([lat, lng]) => `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+// Keyless Google Maps embeds: satellite map with Google's own labels, and 360° Street View.
+const googleMapEmbed = ([lat, lng], z) => `https://maps.google.com/maps?q=${lat},${lng}&t=k&z=${z}&hl=en&output=embed`;
+const streetViewEmbed = ([lat, lng]) => `https://www.google.com/maps?layer=c&cbll=${lat},${lng}&cbp=12,0,0,0,0&hl=en&output=svembed`;
+
 
 export default function ZooMap({ autoTour = false, height = '100vh', showIntroHint = true, initialSound = false, initialZone = null }) {
   const elRef = useRef(null);
@@ -31,6 +37,7 @@ export default function ZooMap({ autoTour = false, height = '100vh', showIntroHi
   const [sound, setSound] = useState(initialSound);
   const [toast, setToast] = useState('');
   const [hint, setHint] = useState(showIntroHint);
+  const [media, setMedia] = useState('photo'); // 'photo' | 'sv' (360° Street View)
 
   const route = useMemo(buildTourRoute, []);
   const [tour, setTour] = useState({ playing: false, dist: 0, stop: 0, atStop: true, active: false });
@@ -98,6 +105,7 @@ export default function ZooMap({ autoTour = false, height = '100vh', showIntroHi
     const map = mapRef.current;
     const { satellite, street } = layersRef.current;
     if (!map) return;
+    if (base === 'google') return;
     if (base === 'satellite') {
       map.removeLayer(street);
       satellite.addTo(map);
@@ -174,6 +182,7 @@ export default function ZooMap({ autoTour = false, height = '100vh', showIntroHi
       }
       const s = tourRef.current;
       const nextStop = Math.min(s.stop + 1, route.stopDist.length - 1);
+      if (s.atStop) setSelected(TOUR_STOPS[nextStop]); // panel previews the next stop while walking
       const target = route.stopDist[nextStop];
       let dist = s.dist + WALK_SPEED * dt;
       let state;
@@ -200,6 +209,8 @@ export default function ZooMap({ autoTour = false, height = '100vh', showIntroHi
 
   const startTour = useCallback((fromStop) => {
     const map = mapRef.current;
+    setBase((b) => (b === 'google' ? 'satellite' : b));
+    setMedia('sv');
     const { routeAll, routeDone } = layersRef.current;
     routeAll.addTo(map);
     routeDone.addTo(map);
@@ -303,7 +314,9 @@ export default function ZooMap({ autoTour = false, height = '100vh', showIntroHi
   };
 
   const sel = selected ? zoneById[selected] : null;
-  const selPhoto = sel?.photo ? PHOTOS[sel.photo] : null;
+  const selPhoto = sel ? zonePhoto(sel) : null;
+  const hasSV = sel && !NO_STREETVIEW.has(sel.id);
+  const showSV = media === 'sv' && hasSV && (!tour.active || tour.atStop);
   const searchHits = q ? ZONES.filter((z) => filters.has(z.cat) && matches(z)) : [];
   const curStopIdx = tour.atStop ? tour.stop : Math.min(tour.stop + 1, TOUR_STOPS.length - 1);
   const curStop = zoneById[TOUR_STOPS[curStopIdx]];
@@ -313,6 +326,17 @@ export default function ZooMap({ autoTour = false, height = '100vh', showIntroHi
   return (
     <div className={`zm ${night ? 'zm-night' : ''} ${zoom >= 18 ? 'zm-labels' : ''} base-${base}`} ref={wrapRef} style={{ height }}>
       <div ref={elRef} className="zm-leaflet" aria-label="Real map of Bangladesh National Zoo" />
+      {base === 'google' && (
+        <iframe
+          key={sel ? sel.id : 'zoo'}
+          className="zm-google"
+          title="Bangladesh National Zoo on Google Maps"
+          src={googleMapEmbed(sel ? sel.pos : [23.8133, 90.3452], sel ? 19 : 17)}
+          loading="lazy"
+          referrerPolicy="no-referrer-when-downgrade"
+          allowFullScreen
+        />
+      )}
 
       <div className="zm-top-left">
         <div className="zm-search">
@@ -341,8 +365,11 @@ export default function ZooMap({ autoTour = false, height = '100vh', showIntroHi
         <div className="zm-mode" role="group" aria-label="Map style">
           <button className={base === 'satellite' ? 'on' : ''} onClick={() => setBase('satellite')}>🛰️ <span className="zm-mode-label">Satellite</span></button>
           <button className={base === 'street' ? 'on' : ''} onClick={() => setBase('street')}>🗺️ <span className="zm-mode-label">Map</span></button>
+          <button className={base === 'google' ? 'on' : ''} onClick={() => { pauseTour(); setBase('google'); }} title="Google Maps view">
+            <b className="g-logo">G</b> <span className="zm-mode-label">Google</span>
+          </button>
         </div>
-        <div className="zm-btn-col">
+        <div className={`zm-btn-col ${base === 'google' ? 'zm-hide' : ''}`}>
           <button title="Zoom in" onClick={() => mapRef.current.zoomIn()}>＋</button>
           <button title="Zoom out" onClick={() => mapRef.current.zoomOut()}>－</button>
           <button title="Show the whole zoo" onClick={() => mapRef.current.flyToBounds(zooBounds(), { padding: [24, 24] })}>⤢</button>
@@ -354,14 +381,37 @@ export default function ZooMap({ autoTour = false, height = '100vh', showIntroHi
       </div>
 
       {sel && panelOpen && (
-        <aside className="zm-panel" aria-live="polite">
+        <aside className={`zm-panel ${tour.active ? 'wide' : ''}`} aria-live="polite">
           <button className="zm-panel-close" onClick={() => setPanelOpen(false)} aria-label="Close">✕</button>
-          {selPhoto && (
-            <figure className="zm-panel-photo">
-              <img src={selPhoto.src} alt={sel.name} loading="lazy" />
-              <figcaption>Photo: {selPhoto.author} · {selPhoto.license}</figcaption>
-            </figure>
-          )}
+          <div className="zm-media" onPointerDown={() => tour.playing && showSV && pauseTour()}>
+            {showSV ? (
+              <iframe
+                key={`sv-${sel.id}`}
+                className="zm-sv"
+                title={`360° Street View — ${sel.name}`}
+                src={streetViewEmbed(sel.pos)}
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                allowFullScreen
+              />
+            ) : selPhoto ? (
+              <figure className="zm-panel-photo">
+                <img key={selPhoto.src} src={selPhoto.src} alt={sel.name} loading="lazy" />
+                <figcaption>
+                  {selPhoto.atZoo ? '📍 Taken at this zoo · ' : ''}Photo: {selPhoto.author} · {selPhoto.license}
+                </figcaption>
+              </figure>
+            ) : (
+              <div className="zm-media-empty" style={{ '--c': CATEGORIES[sel.cat].color }}>{sel.emoji}</div>
+            )}
+            {tour.active && !tour.atStop && <span className="zm-media-tag">🚶 Walking to…</span>}
+            {(hasSV || selPhoto) && (
+              <div className="zm-media-tabs" role="tablist">
+                {selPhoto && <button className={!showSV ? 'on' : ''} onClick={() => setMedia('photo')}>📷 Photo</button>}
+                {hasSV && <button className={showSV ? 'on' : ''} onClick={() => setMedia('sv')}>🌐 360° Street View</button>}
+              </div>
+            )}
+          </div>
           <div className="zm-panel-head" style={{ '--c': CATEGORIES[sel.cat].color }}>
             <span className="zm-panel-emoji">{sel.emoji}</span>
             <div>
@@ -375,7 +425,7 @@ export default function ZooMap({ autoTour = false, height = '100vh', showIntroHi
             <ul className="zm-animals">
               {sel.animals.map((a) => animalById[a]).filter(Boolean).map((a) => (
                 <li key={a.id}>
-                  <span>{a.emoji}</span>
+                  {a.photo ? <img src={PHOTOS[a.photo].src} alt="" loading="lazy" /> : <span>{a.emoji}</span>}
                   <div><b>{a.name}</b> <em className="bn">{a.bn}</em><small>{a.fact}</small></div>
                 </li>
               ))}
@@ -383,12 +433,13 @@ export default function ZooMap({ autoTour = false, height = '100vh', showIntroHi
           )}
           <div className="zm-panel-actions">
             <a className="zm-act" href={directionsUrl(sel.pos)} target="_blank" rel="noreferrer">🧭 Directions</a>
+            <a className="zm-act ghost" href={gmapsPlaceUrl(sel.pos)} target="_blank" rel="noreferrer">Google Maps ↗</a>
             {tourIdx >= 0 && !tour.playing && <button className="zm-act alt" onClick={() => startTour(tourIdx)}>🚶 Walk from here</button>}
           </div>
         </aside>
       )}
 
-      <div className={`zm-tour ${tour.active ? 'active' : ''}`}>
+      <div className={`zm-tour ${tour.active ? 'active' : ''} ${base === 'google' && !tour.active ? 'zm-hide' : ''}`}>
         {!tour.active ? (
           <button className="zm-tour-start" onClick={() => startTour()}>
             🚶 Start Virtual Walk

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { PageHero, SectionTitle, Reveal, Counter } from '../components/common';
 import { ZONES, ZOO_INFO } from '../data/zoo';
 import { PHOTOS } from '../data/photos';
+import { zonePhoto } from '../data/media';
 
 export function Facilities() {
   const items = ZONES.filter((z) => z.cat === 'facility' || z.cat === 'attraction');
@@ -19,8 +20,10 @@ export function Facilities() {
         <div className="container card-grid">
           {items.map((z, i) => (
             <Reveal key={z.id} delay={(i % 6) * 70}>
-              <Link to={`/map?zone=${z.id}`} className="feature-card">
-                <span className="feature-icon">{z.emoji}</span>
+              <Link to={`/map?zone=${z.id}`} className={`feature-card ${zonePhoto(z) ? 'with-photo' : ''}`}>
+                {zonePhoto(z)
+                  ? <img className="feature-photo" src={zonePhoto(z).src} alt={z.name} loading="lazy" />
+                  : <span className="feature-icon">{z.emoji}</span>}
                 <h3>{z.name}</h3>
                 <p>{z.desc}</p>
                 <span className="more">Show on map →</span>

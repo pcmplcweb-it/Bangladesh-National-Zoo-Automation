@@ -400,3 +400,13 @@ h1, h2, h3 { line-height: 1.2; }
 .credits b { display: block; font-size: 13px; line-height: 1.3; }
 .credits small { color: var(--muted); }
 .credits a { color: var(--green); }
+
+.atzoo { position: absolute; left: 12px; bottom: 12px; z-index: 1; font-style: normal; font-size: 11px; font-weight: 600; color: #fff; background: rgba(21,128,61,.9); padding: 3px 10px; border-radius: 999px; }
+.photo-credit { font-size: 12px; color: var(--muted); }
+.photo-credit a { color: var(--green); }
+.modal-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.feature-card.with-photo { padding: 0; }
+.feature-card.with-photo > *:not(.feature-photo) { margin-left: 26px; margin-right: 26px; }
+.feature-card.with-photo h3 { margin-top: 18px; }
+.feature-card.with-photo .more { display: inline-block; margin-bottom: 24px; }
+.feature-photo { width: 100%; height: 180px; object-fit: cover; display: block; }

@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { PageHero, Reveal } from '../components/common';
-import { ANIMALS, zoneById } from '../data/zoo';
+import { ANIMALS, NO_STREETVIEW, zoneById } from '../data/zoo';
 import { PHOTOS } from '../data/photos';
+
+const panoUrl = ([lat, lng]) => `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${lat},${lng}`;
 
 const GROUPS = ['All', ...new Set(ANIMALS.map((a) => a.group))];
 
@@ -50,6 +52,7 @@ export default function Animals() {
                   <div className={`animal-card-art ${a.photo ? 'has-photo' : ''}`} style={{ '--g1': a.grad[0], '--g2': a.grad[1] }}>
                     {a.photo ? <img src={PHOTOS[a.photo].src} alt={a.name} loading="lazy" /> : <span>{a.emoji}</span>}
                     <i className="status" style={{ background: STATUS_COLOR[a.status] || '#7f8c8d' }}>{a.status}</i>
+                    {a.photo && PHOTOS[a.photo].atZoo && <i className="atzoo">📍 Taken at this zoo</i>}
                   </div>
                   <div className="animal-card-body">
                     <h3>{a.name}</h3>
@@ -82,8 +85,19 @@ export default function Animals() {
                 <div><dt>Where</dt><dd>{zoneById[open.zone].name}</dd></div>
               </dl>
               <p>💡 {open.fact}</p>
+              {open.photo && (
+                <p className="photo-credit">
+                  {PHOTOS[open.photo].atZoo ? '📍 Photographed at Bangladesh National Zoo. ' : 'Species photo. '}
+                  Photo: {PHOTOS[open.photo].author} · {PHOTOS[open.photo].license} · <a href={PHOTOS[open.photo].source} target="_blank" rel="noreferrer">source</a>
+                </p>
+              )}
               <p className="muted">{zoneById[open.zone].desc}</p>
-              <Link to={`/map?zone=${open.zone}`} className="btn btn-green">🗺️ Show on zoo map</Link>
+              <div className="modal-actions">
+                <Link to={`/map?zone=${open.zone}`} className="btn btn-green">🗺️ Show on zoo map</Link>
+                {!NO_STREETVIEW.has(open.zone) && (
+                  <a className="btn btn-ghost" href={panoUrl(zoneById[open.zone].pos)} target="_blank" rel="noreferrer">🌐 360° Street View</a>
+                )}
+              </div>
             </div>
           </div>
         </div>
