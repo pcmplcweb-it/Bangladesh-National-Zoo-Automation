@@ -32,19 +32,20 @@ export function TopBar() {
   );
 }
 
-export function Header() {
+export function Header({ overlay = false }) {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const loc = useLocation();
   useEffect(() => setOpen(false), [loc.pathname]);
   useEffect(() => {
-    const on = () => setScrolled(window.scrollY > 10);
+    const on = () => setScrolled(window.scrollY > 40);
+    on();
     window.addEventListener('scroll', on, { passive: true });
     return () => window.removeEventListener('scroll', on);
   }, []);
 
   return (
-    <header className={`header ${scrolled ? 'scrolled' : ''}`}>
+    <header className={`header ${scrolled ? 'scrolled' : ''} ${overlay ? 'overlay' : ''} ${overlay && !scrolled && !open ? 'clear' : ''}`}>
       <div className="container header-in">
         <Link to="/" className="brand" aria-label="Bangladesh National Zoo home">
           <span className="brand-logo">🐅</span>
@@ -108,22 +109,34 @@ export function Footer() {
         </div>
       </div>
       <div className="footer-bottom">
-        <div className="container">© {new Date().getFullYear()} Bangladesh National Zoo, Mirpur, Dhaka. Map layout is illustrative.</div>
+        <div className="container footer-bottom-in">
+          <span>© {new Date().getFullYear()} Bangladesh National Zoo, Mirpur, Dhaka.</span>
+          <span>
+            Map data © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a> contributors ·
+            Imagery © Esri · Photos: <Link to="/about#credits">Wikimedia Commons contributors (CC BY / BY-SA)</Link>
+          </span>
+        </div>
       </div>
     </footer>
   );
 }
 
 export default function Layout() {
-  const { pathname } = useLocation();
+  const { pathname, hash } = useLocation();
   useEffect(() => {
-    if (!window.location.hash) window.scrollTo(0, 0);
-  }, [pathname]);
+    if (!hash) {
+      window.scrollTo(0, 0);
+      return undefined;
+    }
+    const t = setTimeout(() => document.querySelector(hash)?.scrollIntoView({ behavior: 'smooth' }), 120);
+    return () => clearTimeout(t);
+  }, [pathname, hash]);
   const fullBleed = pathname === '/map' || pathname === '/tour';
+  const home = pathname === '/';
   return (
     <>
-      <TopBar />
-      <Header />
+      {!home && <TopBar />}
+      <Header overlay={home} />
       <main>
         <Outlet />
       </main>

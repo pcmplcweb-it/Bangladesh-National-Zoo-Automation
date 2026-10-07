@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { PageHero, SectionTitle, Reveal, Counter } from '../components/common';
 import { ZONES, ZOO_INFO } from '../data/zoo';
+import { PHOTOS } from '../data/photos';
 
 export function Facilities() {
   const items = ZONES.filter((z) => z.cat === 'facility' || z.cat === 'attraction');
@@ -13,7 +14,7 @@ export function Facilities() {
   ];
   return (
     <>
-      <PageHero title="Facilities & Attractions" subtitle="Everything that makes a comfortable, fun family day at the zoo." emoji="🎠🍲" />
+      <PageHero title="Facilities & Attractions" subtitle="Everything that makes a comfortable, fun family day at the zoo." emoji="🎠🍲" photo={PHOTOS['path-rain-1'].src} />
       <section className="section">
         <div className="container card-grid">
           {items.map((z, i) => (
@@ -42,7 +43,7 @@ export function Facilities() {
 export function About() {
   return (
     <>
-      <PageHero title="About the Zoo" subtitle="Caring for wildlife and inspiring Bangladesh to protect nature." emoji="🌿🐅" />
+      <PageHero title="About the Zoo" subtitle="Caring for wildlife and inspiring Bangladesh to protect nature." emoji="🌿🐅" photo={PHOTOS['lake-flame-trees'].src} />
       <section className="section">
         <div className="container split">
           <Reveal>
@@ -71,6 +72,25 @@ export function About() {
           </div>
         </div>
       </section>
+      <section className="section" id="credits">
+        <div className="container">
+          <SectionTitle kicker="Thank you" title="Photo & Map Credits">
+            Photos are by visitors who shared them on Wikimedia Commons under Creative Commons licences.
+            Zoo boundary, lakes, roads and enclosures come from OpenStreetMap (© OpenStreetMap contributors, ODbL); satellite imagery © Esri.
+          </SectionTitle>
+          <ul className="credits">
+            {Object.values(PHOTOS).map((p) => (
+              <li key={p.src}>
+                <img src={p.src} alt="" loading="lazy" />
+                <div>
+                  <b>{p.title}</b>
+                  <small>{p.author} · {p.license} · <a href={p.source} target="_blank" rel="noreferrer">source</a></small>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
     </>
   );
 }
@@ -85,7 +105,7 @@ export function Contact() {
   const [lat, lng] = ZOO_INFO.center;
   return (
     <>
-      <PageHero title="Contact Us" subtitle="Questions about your visit, group bookings or volunteering? We're happy to help." emoji="📞✉️" />
+      <PageHero title="Contact Us" subtitle="Questions about your visit, group bookings or volunteering? We're happy to help." emoji="📞✉️" photo={PHOTOS['gate-sign'].src} />
       <section className="section">
         <div className="container split">
           <div>

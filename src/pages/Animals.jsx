@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { PageHero, Reveal } from '../components/common';
 import { ANIMALS, zoneById } from '../data/zoo';
+import { PHOTOS } from '../data/photos';
 
 const GROUPS = ['All', ...new Set(ANIMALS.map((a) => a.group))];
 
@@ -10,6 +11,7 @@ const STATUS_COLOR = {
   Vulnerable: '#e67e22',
   'Near Threatened': '#d4ac0d',
   'Least Concern': '#27ae60',
+  'Critically Endangered': '#8e0000',
 };
 
 export default function Animals() {
@@ -29,7 +31,7 @@ export default function Animals() {
 
   return (
     <>
-      <PageHero title="Meet the Animals" subtitle="From the mighty Royal Bengal Tiger to tiny freshwater fish — get to know our residents." emoji="🦁🐘🦒" />
+      <PageHero title="Meet the Animals" subtitle="From the mighty Royal Bengal Tiger to the rare vulture — get to know the residents of the zoo." emoji="🦁🐘🦒" photo={PHOTOS.tiger.src} />
       <section className="section">
         <div className="container">
           <div className="toolbar">
@@ -45,8 +47,8 @@ export default function Animals() {
             {list.map((a, i) => (
               <Reveal key={a.id} delay={(i % 8) * 50}>
                 <button className="animal-card" onClick={() => setOpen(a)}>
-                  <div className="animal-card-art" style={{ '--g1': a.grad[0], '--g2': a.grad[1] }}>
-                    <span>{a.emoji}</span>
+                  <div className={`animal-card-art ${a.photo ? 'has-photo' : ''}`} style={{ '--g1': a.grad[0], '--g2': a.grad[1] }}>
+                    {a.photo ? <img src={PHOTOS[a.photo].src} alt={a.name} loading="lazy" /> : <span>{a.emoji}</span>}
                     <i className="status" style={{ background: STATUS_COLOR[a.status] || '#7f8c8d' }}>{a.status}</i>
                   </div>
                   <div className="animal-card-body">
@@ -67,7 +69,9 @@ export default function Animals() {
         <div className="modal" onClick={() => setOpen(null)} role="dialog" aria-modal="true" aria-label={open.name}>
           <div className="modal-box" onClick={(e) => e.stopPropagation()}>
             <button className="modal-close" onClick={() => setOpen(null)} aria-label="Close">✕</button>
-            <div className="modal-art" style={{ '--g1': open.grad[0], '--g2': open.grad[1] }}>{open.emoji}</div>
+            <div className={`modal-art ${open.photo ? 'has-photo' : ''}`} style={{ '--g1': open.grad[0], '--g2': open.grad[1] }}>
+              {open.photo ? <img src={PHOTOS[open.photo].src} alt={open.name} /> : open.emoji}
+            </div>
             <div className="modal-body">
               <h2>{open.name} <small className="bn">{open.bn}</small></h2>
               <em>{open.sci}</em>

@@ -1,15 +1,19 @@
 # Bangladesh National Zoo — Interactive Website
 
-A React website for the Bangladesh National Zoo (Mirpur, Dhaka). The visitor "enters" the zoo through an animated main gate and lands directly on a comprehensive interactive map of the zoo grounds, then explores the rest of the site through the menu.
+A React website for the Bangladesh National Zoo (Mirpur, Dhaka) with a realistic, photo-based design and a **real map** of the zoo grounds.
 
 ## Features
 
-- **Gate entrance** – animated welcome scene; the gates swing open and the camera flies into the zoo (optional synthesised nature-sound ambience).
-- **Interactive illustrated map** – pan, scroll/pinch zoom, 23 enclosures and facilities with info cards, animated animals, lakes, birds, search and category filters, day/night mode, full-screen.
-- **Satellite view** – real imagery (Esri) centred on the zoo's Google Maps location, with everything outside the zoo dimmed.
-- **Virtual walk** – a guided loop from the main gate through 17 stops; the camera follows the walker and each stop opens its info card. Pause, skip, resume.
-- **Menu pages** – Home, Zoo Map, Virtual Tour, Animals (filter + detail modal), Plan Your Visit (hours, ticket calculator & e-ticket, directions, rules), Facilities, About, Contact (form + embedded Google Map).
-- Fully responsive (desktop, tablet, mobile), Bangla + English names.
+- **Realistic entrance** – a full-screen photo of the zoo's real pillar gate; "প্রবেশ করুন / Enter" moves the camera through the arch (optional synthesised nature sounds).
+- **Hero in the style of the reference site** – crossfading real zoo photos with a slow zoom and green colour grade, a transparent header, a live "এখন খোলা / Open now" badge (Asia/Dhaka time), a bold Bangla headline, pill buttons, stats and a phone mockup that shows a **live satellite mini-map** of the zoo.
+- **Real zoo map** (Leaflet)
+  - Satellite imagery (Esri) or street map (OpenStreetMap), with everything outside the zoo dimmed.
+  - The zoo's real boundary, North and South lakes, enclosure outlines and internal roads from OpenStreetMap.
+  - 30 zones pinned at their real coordinates, with search (English/বাংলা), category filters, info cards, real photos, and Google Maps walking directions for each zone.
+  - **Virtual walk** along the real roads (28 stops) where the camera follows the walker.
+  - "Where am I?" geolocation for visitors inside the zoo, night mode, ambient sound and full screen.
+- **Pages** – Home, Zoo Map, Virtual Tour, Animals (real photos where available), Plan Your Visit (hours, ticket calculator and e-ticket, directions, rules), Facilities, About (with photo and map credits), Contact.
+- Responsive for desktop, tablet and mobile.
 
 ## Run locally
 
@@ -20,11 +24,20 @@ npm run build      # production build in dist/
 npm run preview    # serve the production build
 ```
 
-## Stack
+## Data & credits
 
-React 19 · Vite · react-router-dom · Leaflet / react-leaflet (satellite view) · hand-drawn SVG map · Web Audio API ambience.
+| What | Source | Licence |
+|---|---|---|
+| Zoo boundary, lakes, roads, enclosures (`src/data/zooGeo.js`) | © OpenStreetMap contributors | ODbL 1.0 |
+| Zone coordinates (`src/data/zoo.js`) | OSM enclosure data, cross-checked with the zoo's official board map | ODbL 1.0 |
+| Photos (`public/images`, `src/data/photos.js`) | Wikimedia Commons contributors | CC BY / CC BY-SA (per photo, listed on the About page) |
+| Satellite tiles | Esri World Imagery | Esri terms of use |
+| Street tiles | tile.openstreetmap.org | [OSM tile usage policy](https://operations.osmfoundation.org/policies/tiles/) |
 
-## Notes
+Before high-traffic production use, switch the street tiles to a provider with a key (OSM's public tile server is meant for light use) and review Esri's terms.
 
-- Enclosure positions are an illustrative layout of the zoo, geo-referenced approximately to the real grounds for the satellite overlay. Edit `src/data/zoo.js` to move pins, add zones/animals, change ticket prices, feeding times or contact details.
-- Ticket booking and the contact form are front-end demos (no backend yet).
+## Editing content
+
+- `src/data/zoo.js` – zones (name, Bangla name, coordinates, description, residents), tour order, animals, tickets, feeding times, opening hours.
+- `src/data/photos.js` – photo list with author and licence.
+- Ticket booking and the contact form are front-end only for now (no backend).

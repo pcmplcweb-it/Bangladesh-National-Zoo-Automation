@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { toBnDigits } from '../data/zoo';
 
 export function SectionTitle({ kicker, title, children, center = true }) {
   return (
@@ -10,9 +11,10 @@ export function SectionTitle({ kicker, title, children, center = true }) {
   );
 }
 
-export function PageHero({ title, subtitle, emoji, crumbs }) {
+export function PageHero({ title, subtitle, emoji, crumbs, photo }) {
+  const style = photo ? { backgroundImage: `linear-gradient(110deg, rgba(5,40,18,.94), rgba(10,70,32,.6)), url(${photo})` } : undefined;
   return (
-    <section className="page-hero">
+    <section className={`page-hero ${photo ? 'photo' : ''}`} style={style}>
       <div className="page-hero-deco" aria-hidden>{emoji}</div>
       <div className="container">
         <span className="crumbs">Home / {crumbs || title}</span>
@@ -49,7 +51,7 @@ export function Reveal({ children, delay = 0, className = '', as: Tag = 'div' })
   );
 }
 
-export function Counter({ to, suffix = '' }) {
+export function Counter({ to, suffix = '', bn = false }) {
   const ref = useRef(null);
   const [val, setVal] = useState(0);
   useEffect(() => {
@@ -70,5 +72,5 @@ export function Counter({ to, suffix = '' }) {
     io.observe(el);
     return () => { io.disconnect(); cancelAnimationFrame(raf); };
   }, [to]);
-  return <span ref={ref}>{val.toLocaleString()}{suffix}</span>;
+  return <span ref={ref}>{bn ? toBnDigits(val) : val.toLocaleString()}{suffix}</span>;
 }

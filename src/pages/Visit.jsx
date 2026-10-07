@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { PageHero, SectionTitle, Reveal } from '../components/common';
 import { TICKETS, ZOO_INFO, FEEDING_TIMES, zoneById } from '../data/zoo';
+import { PHOTOS } from '../data/photos';
 
 const RULES = [
   ['🚭', 'No smoking anywhere inside the zoo.'],
@@ -44,7 +45,7 @@ function nextOpenDate() {
 }
 
 export default function Visit() {
-  const [qty, setQty] = useState({ adult: 2, child: 1, student: 0, aquarium: 0 });
+  const [qty, setQty] = useState({ adult: 2, child: 1, student: 0 });
   const [form, setForm] = useState({ name: '', phone: '', date: nextOpenDate() });
   const [error, setError] = useState('');
   const [ticket, setTicket] = useState(null);
@@ -71,7 +72,7 @@ export default function Visit() {
 
   return (
     <>
-      <PageHero title="Plan Your Visit" subtitle="Opening hours, tickets, getting here and everything you need for a perfect day." emoji="🎟️🗺️" />
+      <PageHero title="Plan Your Visit" subtitle="Opening hours, tickets, getting here and everything you need for a perfect day." emoji="🎟️🗺️" photo={PHOTOS['main-gate'].src} />
 
       <section className="section">
         <div className="container card-grid three">
@@ -79,7 +80,7 @@ export default function Visit() {
             <span>🕘</span>
             <h3>Opening Hours</h3>
             <p><b>{ZOO_INFO.hours}</b></p>
-            <p>Closed: {ZOO_INFO.closed}. Last entry 4:00 PM. Hours may change on public holidays — check official notices.</p>
+            <p>Closed: {ZOO_INFO.closed}. Last entry about an hour before closing; winter hours may end at 5:00 PM — check official notices.</p>
           </Reveal>
           <Reveal className="info-card" delay={100}>
             <span>🍽️</span>

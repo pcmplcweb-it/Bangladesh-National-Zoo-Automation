@@ -1,209 +1,162 @@
-// Illustrated map coordinate space: viewBox 0 0 1200 900 (north is up, main gate is south).
-// Positions are an illustrative layout of the zoo grounds, not a surveyed plan.
+// Zone positions are real coordinates taken from OpenStreetMap enclosure data
+// (© OpenStreetMap contributors) and cross-checked with the official zoo board map.
 
 export const ZOO_INFO = {
   name: 'Bangladesh National Zoo',
   nameBn: 'বাংলাদেশ জাতীয় চিড়িয়াখানা',
   address: 'Zoo Road, Mirpur-1, Dhaka 1216, Bangladesh',
+  addressBn: 'চিড়িয়াখানা রোড, মিরপুর-১, ঢাকা ১২১৬',
   phone: '+880 2-9002010',
   email: 'info@nationalzoo.gov.bd',
-  hours: 'Sat – Thu: 9:00 AM – 5:00 PM',
+  hours: 'Mon – Sat: 9:00 AM – 6:00 PM',
+  hoursBn: 'সোম – শনি: সকাল ৯টা – সন্ধ্যা ৬টা',
   closed: 'Sunday (weekly closing day)',
   center: [23.8122516, 90.346927],
+  gate: [23.812223, 90.346923],
   googleMaps:
     'https://www.google.com/maps/place/Bangladesh+National+Zoo/@23.8130957,90.3444057,17z/data=!4m6!3m5!1s0x3755c102e2ece5bb:0x446e9dc895326a70!8m2!3d23.8122516!4d90.346927',
   areaAcres: 186,
   established: 1974,
 };
 
-// Outline of the zoo grounds in map space.
-export const BOUNDARY_PATH =
-  'M 600 872 C 470 872 330 860 250 815 C 165 765 140 680 140 590 C 140 470 150 370 175 285 C 205 185 270 120 380 105 C 520 88 690 92 820 100 C 950 110 1040 160 1065 260 C 1088 350 1085 470 1075 580 C 1065 690 1030 780 940 828 C 850 868 730 872 600 872 Z';
+// Opening rule used for the live "Open now" badge (Asia/Dhaka time).
+export const OPENING = { days: [1, 2, 3, 4, 5, 6], open: 9, close: 18 };
 
-export const LAKES = [
-  { id: 'lake-a', cx: 430, cy: 440, rx: 150, ry: 88, rot: -12, name: 'Migratory Bird Lake' },
-  { id: 'lake-b', cx: 700, cy: 230, rx: 115, ry: 58, rot: 8, name: 'North Lake' },
-];
+export function openStatus(now = new Date()) {
+  const parts = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Asia/Dhaka', weekday: 'short', hour: 'numeric', minute: 'numeric', hourCycle: 'h23',
+  }).formatToParts(now);
+  const get = (t) => parts.find((p) => p.type === t)?.value;
+  const day = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].indexOf(get('weekday'));
+  const h = Number(get('hour')) + Number(get('minute')) / 60;
+  const openDay = OPENING.days.includes(day);
+  const open = openDay && h >= OPENING.open && h < OPENING.close;
+  return { open, openDay, day };
+}
 
 export const CATEGORIES = {
-  animal: { label: 'Animal Zones', color: '#e07a1f' },
-  bird: { label: 'Birds', color: '#2a9d8f' },
-  facility: { label: 'Facilities', color: '#3a6ea5' },
-  attraction: { label: 'Attractions', color: '#8e44ad' },
+  animal: { label: 'Animals', labelBn: 'প্রাণী', color: '#f08c2e' },
+  bird: { label: 'Birds', labelBn: 'পাখি', color: '#1fb5a3' },
+  facility: { label: 'Facilities', labelBn: 'সুবিধা', color: '#3a86ff' },
+  attraction: { label: 'Lakes & Leisure', labelBn: 'লেক ও বিনোদন', color: '#b15cff' },
 };
 
 export const ZONES = [
-  {
-    id: 'gate', name: 'Main Gate & Ticket Counter', emoji: '🎟️', x: 600, y: 838, cat: 'facility',
-    desc: 'Your adventure starts here. Buy tickets, grab a printed map and meet the friendly zoo guides.',
-    animals: [],
-  },
-  {
-    id: 'info', name: 'Visitor Information Centre', emoji: 'ℹ️', x: 520, y: 770, cat: 'facility',
-    desc: 'Lost & found, first-aid, wheelchair and stroller help, and daily feeding-time notices.',
-    animals: [],
-  },
-  {
-    id: 'food', name: 'Food Court', emoji: '🍲', x: 420, y: 805, cat: 'facility',
-    desc: 'Snacks, local favourites like fuchka and jhalmuri, tea and cold drinks under shady trees.',
-    animals: [],
-  },
-  {
-    id: 'kids', name: "Children's Park", emoji: '🎠', x: 300, y: 740, cat: 'attraction',
-    desc: 'Swings, slides and a mini ride area right beside the family picnic lawn.',
-    animals: [],
-  },
-  {
-    id: 'aquarium', name: 'Aquarium', emoji: '🐠', x: 720, y: 770, cat: 'attraction',
-    desc: 'Freshwater fish of Bangladesh including rui, katla, pangas and colourful ornamental fish.',
-    animals: ['fish'],
-  },
-  {
-    id: 'museum', name: 'Zoo Museum', emoji: '🏛️', x: 680, y: 665, cat: 'attraction',
-    desc: 'Preserved specimens, skeletons and exhibits on wildlife conservation in Bangladesh.',
-    animals: [],
-  },
-  {
-    id: 'aviary', name: 'Bird Aviary & Peacock Garden', emoji: '🦚', x: 430, y: 665, cat: 'bird',
-    desc: 'Walk among parakeets, hornbills, mynas, pheasants and dancing peacocks.',
-    animals: ['peacock', 'hornbill', 'parrot'],
-  },
-  {
-    id: 'reptile', name: 'Reptile House', emoji: '🐍', x: 555, y: 600, cat: 'animal',
-    desc: 'Pythons, monitor lizards and turtles in climate-controlled enclosures.',
-    animals: ['python', 'turtle'],
-  },
-  {
-    id: 'primate', name: 'Primate House', emoji: '🐒', x: 270, y: 600, cat: 'animal',
-    desc: 'Chimpanzees, rhesus macaques, baboons and the playful langurs.',
-    animals: ['chimpanzee', 'macaque'],
-  },
-  {
-    id: 'tiger', name: 'Royal Bengal Tiger', emoji: '🐅', x: 800, y: 600, cat: 'animal',
-    desc: "The national animal of Bangladesh — the zoo's most popular enclosure.",
-    animals: ['tiger'],
-  },
-  {
-    id: 'bear', name: 'Bear Enclosure', emoji: '🐻', x: 930, y: 700, cat: 'animal',
-    desc: 'Asiatic black bears and sun bears exploring their rocky den.',
-    animals: ['bear'],
-  },
-  {
-    id: 'lion', name: 'Lion Kingdom', emoji: '🦁', x: 945, y: 545, cat: 'animal',
-    desc: 'African lions resting on the sunny rocks — best seen in the morning.',
-    animals: ['lion'],
-  },
-  {
-    id: 'hippo', name: 'Hippo Pool', emoji: '🦛', x: 610, y: 470, cat: 'animal',
-    desc: 'Watch the hippos wallow and yawn in their deep pool next to the lake.',
-    animals: ['hippo'],
-  },
-  {
-    id: 'croc', name: 'Crocodile Pond', emoji: '🐊', x: 245, y: 440, cat: 'animal',
-    desc: 'Mugger and saltwater crocodiles basking on the banks.',
-    animals: ['crocodile'],
-  },
-  {
-    id: 'lake', name: 'Migratory Bird Lake', emoji: '🦆', x: 430, y: 440, cat: 'bird',
-    desc: 'In winter thousands of migratory ducks and whistling teals visit this lake.',
-    animals: ['duck', 'pelican'],
-  },
-  {
-    id: 'giraffe', name: 'Giraffe & Zebra Savannah', emoji: '🦒', x: 830, y: 410, cat: 'animal',
-    desc: 'An open savannah paddock with giraffes, zebras and impalas.',
-    animals: ['giraffe', 'zebra'],
-  },
-  {
-    id: 'elephant', name: 'Elephant Ground', emoji: '🐘', x: 990, y: 400, cat: 'animal',
-    desc: 'Asian elephants bathing and dusting — catch the bath time around noon.',
-    animals: ['elephant'],
-  },
-  {
-    id: 'deer', name: 'Deer Park', emoji: '🦌', x: 300, y: 260, cat: 'animal',
-    desc: 'Herds of spotted deer, sambar and barking deer grazing under the trees.',
-    animals: ['deer', 'sambar'],
-  },
-  {
-    id: 'birds-large', name: 'Ostrich & Emu Paddock', emoji: '🦤', x: 950, y: 260, cat: 'bird',
-    desc: 'The tallest birds in the world strut around a spacious sandy paddock.',
-    animals: ['ostrich', 'emu'],
-  },
-  {
-    id: 'northlake', name: 'North Lake', emoji: '🦢', x: 700, y: 230, cat: 'bird',
-    desc: 'Pelicans, swans and cormorants on a quiet lake — a lovely photo spot.',
-    animals: ['pelican'],
-  },
-  {
-    id: 'picnic', name: 'Picnic Lawn', emoji: '🧺', x: 500, y: 180, cat: 'attraction',
-    desc: 'A large shaded lawn for family picnics and resting after the walk.',
-    animals: [],
-  },
-  {
-    id: 'wc1', name: 'Restroom & Prayer Room', emoji: '🚻', x: 640, y: 345, cat: 'facility',
-    desc: 'Clean restrooms and a prayer room for visitors.',
-    animals: [],
-  },
-  {
-    id: 'wc2', name: 'Restroom & Drinking Water', emoji: '🚰', x: 330, y: 820, cat: 'facility',
-    desc: 'Restrooms and safe drinking-water point near the children’s park.',
-    animals: [],
-  },
+  { id: 'gate', name: 'Main Gate & Ticket Counter', bn: 'প্রধান ফটক ও টিকিট কাউন্টার', emoji: '🎟️', pos: [23.812223, 90.346923], cat: 'facility', photo: 'main-gate',
+    desc: 'The main entrance on Zoo Road, Mirpur-1. Buy tickets here, check the board map and start your walk.', animals: [] },
+  { id: 'wc', name: 'Restrooms', bn: 'শৌচাগার', emoji: '🚻', pos: [23.81205, 90.34668], cat: 'facility',
+    desc: 'Paid public toilets just inside the main gate.', animals: [] },
+  { id: 'office', name: "Director's Office", bn: 'পরিচালকের কার্যালয়', emoji: '🏢', pos: [23.813622, 90.346855], cat: 'facility',
+    desc: 'Administration, lost & found and visitor help desk.', animals: [] },
+  { id: 'mosque', name: 'Zoo Jame Masjid', bn: 'চিড়িয়াখানা জামে মসজিদ', emoji: '🕌', pos: [23.812605, 90.343245], cat: 'facility',
+    desc: 'The mosque inside the zoo grounds, open for visitors at prayer times.', animals: [] },
+
+  { id: 'monkey', name: 'Monkey House', bn: 'বানরের খাঁচা', emoji: '🐒', pos: [23.812566, 90.346466], cat: 'animal',
+    desc: 'Rhesus macaques and other monkeys — usually the liveliest enclosure near the gate.', animals: ['macaque'] },
+  { id: 'flamingo', name: 'Greater Flamingo', bn: 'ফ্লেমিঙ্গো', emoji: '🦩', pos: [23.812603, 90.345304], cat: 'bird',
+    desc: 'Pink flamingos wading in their shallow pond along the main loop road.', animals: ['flamingo'] },
+  { id: 'otter', name: 'Otter Pool', bn: 'ভোঁদড়ের খাঁচা', emoji: '🦦', pos: [23.812133, 90.343981], cat: 'animal',
+    desc: 'Smooth-coated otters diving and playing in their pool.', animals: ['otter'] },
+  { id: 'leopard', name: 'Leopard', bn: 'চিতাবাঘ', emoji: '🐆', pos: [23.811955, 90.343306], cat: 'animal',
+    desc: 'The elusive leopard — look carefully, it loves to rest in the shade.', animals: ['leopard'] },
+  { id: 'kids', name: "Children's Corner", bn: 'শিশু কর্নার', emoji: '🎠', pos: [23.81148, 90.34375], cat: 'attraction',
+    desc: 'Guinea pigs and small animals children can watch up close.', animals: ['guineapig'] },
+  { id: 'oryx', name: 'Oryx Paddock', bn: 'অরিক্স', emoji: '🦌', pos: [23.811343, 90.342373], cat: 'animal',
+    desc: 'Desert antelopes with long, straight horns.', animals: ['oryx'] },
+  { id: 'giraffe', name: 'Giraffe & Zebra', bn: 'জিরাফ ও জেব্রা', emoji: '🦒', pos: [23.812675, 90.342276], cat: 'animal',
+    desc: 'Giraffes browsing high branches beside the zebras on the western side of the zoo.', animals: ['giraffe', 'zebra'] },
+  { id: 'antelope', name: 'Antelope Row', bn: 'নীলগাই, ওয়াইল্ডবিস্ট ও ওয়াটারবাক', emoji: '🐃', pos: [23.81365, 90.34232], cat: 'animal',
+    desc: 'A row of paddocks with nilgai, wildebeest, waterbuck and Bhutani cattle (gayal).', animals: ['nilgai', 'wildebeest', 'waterbuck'] },
+  { id: 'aviary', name: 'Bird Aviary', bn: 'পাখিশালা', emoji: '🦜', pos: [23.81409, 90.343248], cat: 'bird',
+    desc: 'Large walk-past aviary with native and exotic birds.', animals: ['parakeet'] },
+  { id: 'saltcroc', name: 'Estuarine Crocodile', bn: 'লোনা পানির কুমির', emoji: '🐊', pos: [23.814594, 90.344447], cat: 'animal',
+    desc: 'The saltwater crocodile — the largest living reptile.', animals: ['saltcroc'] },
+  { id: 'hippo', name: 'Hippopotamus', bn: 'জলহস্তী', emoji: '🦛', pos: [23.81543, 90.34477], cat: 'animal',
+    desc: 'Hippos wallowing in their pool beside the North Lake.', animals: ['hippo'] },
+  { id: 'northlake', name: 'North Lake & Picnic Spots', bn: 'উত্তর লেক ও পিকনিক স্পট', emoji: '🦢', pos: [23.81665, 90.34445], cat: 'attraction', photo: 'north-lake',
+    desc: 'A large lake with island picnic spots; migratory ducks arrive every winter and pelicans rest on the water.', animals: ['duck', 'pelican'] },
+  { id: 'peafowl', name: 'Peafowl Garden', bn: 'ময়ূর', emoji: '🦚', pos: [23.815802, 90.345183], cat: 'bird',
+    desc: 'Peacocks displaying their shimmering trains.', animals: ['peacock'] },
+  { id: 'snakes', name: 'Snake House', bn: 'সাপের ঘর', emoji: '🐍', pos: [23.815746, 90.345583], cat: 'animal',
+    desc: 'Pythons and other snakes of Bangladesh.', animals: ['python'] },
+  { id: 'baboon', name: 'Baboons', bn: 'বেবুন', emoji: '🐵', pos: [23.815971, 90.346009], cat: 'animal',
+    desc: 'A troop of baboons with lots of social drama to watch.', animals: ['baboon'] },
+  { id: 'tiger', name: 'Royal Bengal Tiger', bn: 'রয়েল বেঙ্গল টাইগার', emoji: '🐅', pos: [23.815822, 90.347345], cat: 'animal', photo: 'tiger',
+    desc: 'The national animal of Bangladesh — the most popular enclosure in the zoo.', animals: ['tiger'] },
+  { id: 'lion', name: 'Lion', bn: 'সিংহ', emoji: '🦁', pos: [23.816864, 90.347626], cat: 'animal',
+    desc: 'Lions resting along the moat on the eastern edge of the zoo.', animals: ['lion'] },
+  { id: 'deer', name: 'Spotted & Barking Deer', bn: 'চিত্রা ও মায়া হরিণ', emoji: '🦌', pos: [23.817818, 90.347675], cat: 'animal',
+    desc: 'Herds of spotted deer (chital) and barking deer grazing under the trees.', animals: ['deer'] },
+  { id: 'croc', name: 'Marsh Crocodile & Gharial', bn: 'মিঠা পানির কুমির ও ঘড়িয়াল', emoji: '🐊', pos: [23.818465, 90.347083], cat: 'animal',
+    desc: 'Mugger crocodiles and the rare gharial at the northern end of the zoo.', animals: ['crocodile'] },
+  { id: 'sambar', name: 'Sambar Deer', bn: 'সাম্বার হরিণ', emoji: '🦌', pos: [23.814875, 90.347157], cat: 'animal',
+    desc: 'The large sambar deer in a long paddock along the eastern wall.', animals: ['sambar'] },
+  { id: 'storks', name: 'Hornbill & Stork Aviaries', bn: 'ধনেশ ও মানিকজোড়', emoji: '🦤', pos: [23.814169, 90.346446], cat: 'bird',
+    desc: 'Oriental pied hornbills, black-necked storks and lesser adjutants.', animals: ['hornbill', 'stork'] },
+
+  { id: 'vulture', name: 'Vulture Aviary', bn: 'শকুন', emoji: '🦅', pos: [23.810624, 90.34332], cat: 'bird',
+    desc: 'Critically endangered vultures — a conservation priority in Bangladesh.', animals: ['vulture'] },
+  { id: 'chimp', name: 'Chimpanzee', bn: 'শিম্পাঞ্জি', emoji: '🦍', pos: [23.809744, 90.344058], cat: 'animal',
+    desc: 'Chimpanzees — our closest relatives — in their enclosure near the South Lake.', animals: ['chimpanzee'] },
+  { id: 'rhino', name: 'Rhinoceros', bn: 'গণ্ডার', emoji: '🦏', pos: [23.809636, 90.344255], cat: 'animal', photo: 'rhino',
+    desc: 'White rhinoceros resting in the shade of their house.', animals: ['rhino'] },
+  { id: 'elephant', name: 'Elephant Ground', bn: 'হাতির মাঠ', emoji: '🐘', pos: [23.808637, 90.343264], cat: 'animal',
+    desc: 'Asian elephants in the large oval ground at the southern end.', animals: ['elephant'] },
+  { id: 'southlake', name: 'South Lake', bn: 'দক্ষিণ লেক', emoji: '🦆', pos: [23.80815, 90.34625], cat: 'attraction', photo: 'lake-flame-trees',
+    desc: 'The largest lake in the zoo, framed by flame trees. Angling by permit on selected Fridays.', animals: ['duck'] },
 ];
 
-// Ordered stops for the virtual walk — a loop that starts and ends at the main gate.
+// Order of the virtual walk: one loop on the real roads, starting and ending at the main gate.
 export const TOUR_STOPS = [
-  'gate', 'aviary', 'primate', 'croc', 'lake', 'deer', 'picnic', 'northlake',
-  'birds-large', 'elephant', 'giraffe', 'hippo', 'lion', 'tiger', 'bear', 'museum', 'aquarium', 'gate',
+  'gate', 'monkey', 'flamingo', 'otter', 'leopard', 'kids', 'chimp', 'rhino', 'elephant', 'southlake',
+  'vulture', 'oryx', 'giraffe', 'antelope', 'aviary', 'saltcroc', 'hippo', 'northlake', 'peafowl', 'snakes',
+  'baboon', 'tiger', 'lion', 'deer', 'croc', 'sambar', 'storks', 'office', 'gate',
 ];
-
-// Extra walkway waypoints so the path curves naturally around lakes and enclosures.
-export const TOUR_WAYPOINTS = {
-  'gate>aviary': [[540, 735]],
-  'aviary>primate': [[350, 640]],
-  'primate>croc': [[215, 520]],
-  'lake>deer': [[300, 350]],
-  'northlake>birds-large': [[840, 200]],
-  'birds-large>elephant': [[1010, 320]],
-  'hippo>lion': [[760, 500]],
-  'bear>museum': [[820, 690]],
-};
 
 export const ANIMALS = [
-  { id: 'tiger', name: 'Royal Bengal Tiger', bn: 'রয়েল বেঙ্গল টাইগার', emoji: '🐅', zone: 'tiger', group: 'Mammals', sci: 'Panthera tigris tigris', status: 'Endangered', diet: 'Carnivore', fact: 'The national animal of Bangladesh and an icon of the Sundarbans mangrove forest.', grad: ['#f39c12', '#d35400'] },
-  { id: 'lion', name: 'African Lion', bn: 'সিংহ', emoji: '🦁', zone: 'lion', group: 'Mammals', sci: 'Panthera leo', status: 'Vulnerable', diet: 'Carnivore', fact: 'A lion’s roar can be heard up to 8 km away.', grad: ['#f1c40f', '#e67e22'] },
-  { id: 'elephant', name: 'Asian Elephant', bn: 'হাতি', emoji: '🐘', zone: 'elephant', group: 'Mammals', sci: 'Elephas maximus', status: 'Endangered', diet: 'Herbivore', fact: 'Elephants can recognise themselves in a mirror and mourn their dead.', grad: ['#95a5a6', '#576574'] },
+  { id: 'tiger', name: 'Royal Bengal Tiger', bn: 'রয়েল বেঙ্গল টাইগার', emoji: '🐅', zone: 'tiger', group: 'Mammals', sci: 'Panthera tigris tigris', status: 'Endangered', diet: 'Carnivore', fact: 'The national animal of Bangladesh and an icon of the Sundarbans mangrove forest.', grad: ['#f39c12', '#d35400'], photo: 'tiger' },
+  { id: 'lion', name: 'Lion', bn: 'সিংহ', emoji: '🦁', zone: 'lion', group: 'Mammals', sci: 'Panthera leo', status: 'Vulnerable', diet: 'Carnivore', fact: 'A lion’s roar can be heard up to 8 km away.', grad: ['#f1c40f', '#e67e22'] },
+  { id: 'leopard', name: 'Leopard', bn: 'চিতাবাঘ', emoji: '🐆', zone: 'leopard', group: 'Mammals', sci: 'Panthera pardus', status: 'Vulnerable', diet: 'Carnivore', fact: 'Leopards can haul prey heavier than themselves up into trees.', grad: ['#e2b04a', '#8a5a19'] },
+  { id: 'elephant', name: 'Asian Elephant', bn: 'হাতি', emoji: '🐘', zone: 'elephant', group: 'Mammals', sci: 'Elephas maximus', status: 'Endangered', diet: 'Herbivore', fact: 'Elephants recognise themselves in a mirror and mourn their dead.', grad: ['#95a5a6', '#576574'] },
+  { id: 'rhino', name: 'White Rhinoceros', bn: 'গণ্ডার', emoji: '🦏', zone: 'rhino', group: 'Mammals', sci: 'Ceratotherium simum', status: 'Near Threatened', diet: 'Herbivore', fact: 'The second-largest land mammal after the elephant.', grad: ['#b2bec3', '#636e72'], photo: 'rhino' },
+  { id: 'hippo', name: 'Hippopotamus', bn: 'জলহস্তী', emoji: '🦛', zone: 'hippo', group: 'Mammals', sci: 'Hippopotamus amphibius', status: 'Vulnerable', diet: 'Herbivore', fact: 'Hippos secrete a reddish “sun-screen” that protects their skin.', grad: ['#a29bfe', '#6c5ce7'] },
   { id: 'giraffe', name: 'Giraffe', bn: 'জিরাফ', emoji: '🦒', zone: 'giraffe', group: 'Mammals', sci: 'Giraffa camelopardalis', status: 'Vulnerable', diet: 'Herbivore', fact: 'A giraffe’s tongue is about 50 cm long and dark blue to avoid sunburn.', grad: ['#f6d365', '#d4a017'] },
   { id: 'zebra', name: 'Zebra', bn: 'জেব্রা', emoji: '🦓', zone: 'giraffe', group: 'Mammals', sci: 'Equus quagga', status: 'Near Threatened', diet: 'Herbivore', fact: 'No two zebras have exactly the same stripe pattern.', grad: ['#636e72', '#2d3436'] },
-  { id: 'hippo', name: 'Hippopotamus', bn: 'জলহস্তী', emoji: '🦛', zone: 'hippo', group: 'Mammals', sci: 'Hippopotamus amphibius', status: 'Vulnerable', diet: 'Herbivore', fact: 'Hippos secrete a reddish “sun-screen” that protects their skin.', grad: ['#a29bfe', '#6c5ce7'] },
-  { id: 'bear', name: 'Asiatic Black Bear', bn: 'কালো ভালুক', emoji: '🐻', zone: 'bear', group: 'Mammals', sci: 'Ursus thibetanus', status: 'Vulnerable', diet: 'Omnivore', fact: 'Recognised by the cream-coloured “V” mark on its chest.', grad: ['#8d6e63', '#4e342e'] },
-  { id: 'chimpanzee', name: 'Chimpanzee', bn: 'শিম্পাঞ্জি', emoji: '🦍', zone: 'primate', group: 'Mammals', sci: 'Pan troglodytes', status: 'Endangered', diet: 'Omnivore', fact: 'Chimpanzees share about 98% of their DNA with humans.', grad: ['#b08968', '#7f5539'] },
-  { id: 'macaque', name: 'Rhesus Macaque', bn: 'বানর', emoji: '🐒', zone: 'primate', group: 'Mammals', sci: 'Macaca mulatta', status: 'Least Concern', diet: 'Omnivore', fact: 'Highly social, living in troops of up to 200 monkeys.', grad: ['#e6b980', '#c08552'] },
+  { id: 'chimpanzee', name: 'Chimpanzee', bn: 'শিম্পাঞ্জি', emoji: '🦍', zone: 'chimp', group: 'Mammals', sci: 'Pan troglodytes', status: 'Endangered', diet: 'Omnivore', fact: 'Chimpanzees share about 98% of their DNA with humans.', grad: ['#b08968', '#7f5539'] },
+  { id: 'baboon', name: 'Baboon', bn: 'বেবুন', emoji: '🐵', zone: 'baboon', group: 'Mammals', sci: 'Papio sp.', status: 'Least Concern', diet: 'Omnivore', fact: 'Baboons live in troops with complex social hierarchies.', grad: ['#d4a373', '#9c6644'] },
+  { id: 'macaque', name: 'Rhesus Macaque', bn: 'বানর', emoji: '🐒', zone: 'monkey', group: 'Mammals', sci: 'Macaca mulatta', status: 'Least Concern', diet: 'Omnivore', fact: 'Highly social, living in troops of up to 200 monkeys.', grad: ['#e6b980', '#c08552'] },
   { id: 'deer', name: 'Spotted Deer', bn: 'চিত্রা হরিণ', emoji: '🦌', zone: 'deer', group: 'Mammals', sci: 'Axis axis', status: 'Least Concern', diet: 'Herbivore', fact: 'The beautiful chital is a common sight in the Sundarbans.', grad: ['#e17055', '#b33939'] },
-  { id: 'sambar', name: 'Sambar Deer', bn: 'সাম্বার হরিণ', emoji: '🦌', zone: 'deer', group: 'Mammals', sci: 'Rusa unicolor', status: 'Vulnerable', diet: 'Herbivore', fact: 'One of the largest deer species in Asia.', grad: ['#a0522d', '#6b3e26'] },
-  { id: 'crocodile', name: 'Mugger Crocodile', bn: 'কুমির', emoji: '🐊', zone: 'croc', group: 'Reptiles', sci: 'Crocodylus palustris', status: 'Vulnerable', diet: 'Carnivore', fact: 'Muggers can stay underwater for over an hour.', grad: ['#55efc4', '#00876c'] },
-  { id: 'python', name: 'Burmese Python', bn: 'অজগর', emoji: '🐍', zone: 'reptile', group: 'Reptiles', sci: 'Python bivittatus', status: 'Vulnerable', diet: 'Carnivore', fact: 'Can grow longer than 5 metres and swallow prey whole.', grad: ['#badc58', '#6ab04c'] },
-  { id: 'turtle', name: 'Indian Flapshell Turtle', bn: 'কচ্ছপ', emoji: '🐢', zone: 'reptile', group: 'Reptiles', sci: 'Lissemys punctata', status: 'Least Concern', diet: 'Omnivore', fact: 'Has skin flaps that close over its legs for protection.', grad: ['#78e08f', '#38ada9'] },
-  { id: 'peacock', name: 'Indian Peafowl', bn: 'ময়ূর', emoji: '🦚', zone: 'aviary', group: 'Birds', sci: 'Pavo cristatus', status: 'Least Concern', diet: 'Omnivore', fact: 'The male’s train can hold more than 200 shimmering feathers.', grad: ['#00b894', '#0984e3'] },
-  { id: 'hornbill', name: 'Great Hornbill', bn: 'ধনেশ পাখি', emoji: '🐦', zone: 'aviary', group: 'Birds', sci: 'Buceros bicornis', status: 'Vulnerable', diet: 'Omnivore', fact: 'Famous for the bright yellow casque on top of its huge bill.', grad: ['#fdcb6e', '#e17055'] },
-  { id: 'parrot', name: 'Rose-ringed Parakeet', bn: 'টিয়া', emoji: '🦜', zone: 'aviary', group: 'Birds', sci: 'Psittacula krameri', status: 'Least Concern', diet: 'Herbivore', fact: 'Can learn to mimic human speech.', grad: ['#55efc4', '#00a86b'] },
-  { id: 'duck', name: 'Lesser Whistling Duck', bn: 'সরালি হাঁস', emoji: '🦆', zone: 'lake', group: 'Birds', sci: 'Dendrocygna javanica', status: 'Least Concern', diet: 'Omnivore', fact: 'Arrives in large flocks every winter — a spectacular sight on the lake.', grad: ['#74b9ff', '#0984e3'] },
-  { id: 'pelican', name: 'Spot-billed Pelican', bn: 'পেলিকান', emoji: '🦢', zone: 'northlake', group: 'Birds', sci: 'Pelecanus philippensis', status: 'Near Threatened', diet: 'Carnivore', fact: 'Its throat pouch can hold more water than its stomach.', grad: ['#dfe6e9', '#74b9ff'] },
-  { id: 'ostrich', name: 'Ostrich', bn: 'উটপাখি', emoji: '🦤', zone: 'birds-large', group: 'Birds', sci: 'Struthio camelus', status: 'Least Concern', diet: 'Omnivore', fact: 'The fastest bird on land, running up to 70 km/h.', grad: ['#b2bec3', '#636e72'] },
-  { id: 'emu', name: 'Emu', bn: 'ইমু', emoji: '🐦‍⬛', zone: 'birds-large', group: 'Birds', sci: 'Dromaius novaehollandiae', status: 'Least Concern', diet: 'Omnivore', fact: 'Emus can’t walk backwards!', grad: ['#a4b0be', '#57606f'] },
-  { id: 'fish', name: 'Freshwater Fishes', bn: 'মাছ', emoji: '🐟', zone: 'aquarium', group: 'Fish', sci: 'Various species', status: 'Varies', diet: 'Varies', fact: 'Bangladesh has around 260 species of freshwater fish.', grad: ['#81ecec', '#0abde3'] },
+  { id: 'sambar', name: 'Sambar Deer', bn: 'সাম্বার হরিণ', emoji: '🦌', zone: 'sambar', group: 'Mammals', sci: 'Rusa unicolor', status: 'Vulnerable', diet: 'Herbivore', fact: 'One of the largest deer species in Asia.', grad: ['#a0522d', '#6b3e26'] },
+  { id: 'nilgai', name: 'Nilgai', bn: 'নীলগাই', emoji: '🐂', zone: 'antelope', group: 'Mammals', sci: 'Boselaphus tragocamelus', status: 'Least Concern', diet: 'Herbivore', fact: 'The largest antelope of Asia — males have a blue-grey coat.', grad: ['#7f8fa6', '#40739e'] },
+  { id: 'wildebeest', name: 'Wildebeest', bn: 'ওয়াইল্ডবিস্ট', emoji: '🐃', zone: 'antelope', group: 'Mammals', sci: 'Connochaetes taurinus', status: 'Least Concern', diet: 'Herbivore', fact: 'Famous for the great migration across the Serengeti.', grad: ['#8395a7', '#222f3e'] },
+  { id: 'waterbuck', name: 'Waterbuck', bn: 'ওয়াটারবাক', emoji: '🦌', zone: 'antelope', group: 'Mammals', sci: 'Kobus ellipsiprymnus', status: 'Least Concern', diet: 'Herbivore', fact: 'Recognised by the white ring on its rump.', grad: ['#c7a17a', '#7d5a3c'] },
+  { id: 'oryx', name: 'Oryx', bn: 'অরিক্স', emoji: '🦌', zone: 'oryx', group: 'Mammals', sci: 'Oryx sp.', status: 'Varies', diet: 'Herbivore', fact: 'Can survive for long periods without drinking water.', grad: ['#e0c3a0', '#a47148'] },
+  { id: 'otter', name: 'Smooth-coated Otter', bn: 'ভোঁদড়', emoji: '🦦', zone: 'otter', group: 'Mammals', sci: 'Lutrogale perspicillata', status: 'Vulnerable', diet: 'Carnivore', fact: 'Fishermen in Bangladesh have trained otters to help fish for centuries.', grad: ['#a68a64', '#5c4033'] },
+  { id: 'guineapig', name: 'Guinea Pig', bn: 'গিনিপিগ', emoji: '🐹', zone: 'kids', group: 'Mammals', sci: 'Cavia porcellus', status: 'Domesticated', diet: 'Herbivore', fact: 'Guinea pigs “popcorn” — jump in the air — when they are happy.', grad: ['#ffeaa7', '#fdcb6e'] },
+  { id: 'squirrel', name: 'Northern Palm Squirrel', bn: 'কাঠবিড়ালি', emoji: '🐿️', zone: 'gate', group: 'Mammals', sci: 'Funambulus pennantii', status: 'Least Concern', diet: 'Omnivore', fact: 'A free-living resident — watch for it foraging along the zoo paths.', grad: ['#c8a165', '#7a5a2f'], photo: 'squirrel' },
+  { id: 'crocodile', name: 'Mugger Crocodile', bn: 'মিঠা পানির কুমির', emoji: '🐊', zone: 'croc', group: 'Reptiles', sci: 'Crocodylus palustris', status: 'Vulnerable', diet: 'Carnivore', fact: 'Muggers can stay underwater for over an hour.', grad: ['#55efc4', '#00876c'] },
+  { id: 'saltcroc', name: 'Estuarine Crocodile', bn: 'লোনা পানির কুমির', emoji: '🐊', zone: 'saltcroc', group: 'Reptiles', sci: 'Crocodylus porosus', status: 'Least Concern', diet: 'Carnivore', fact: 'The largest living reptile; wild ones still live in the Sundarbans.', grad: ['#20bf6b', '#0b6e4f'] },
+  { id: 'python', name: 'Burmese Python', bn: 'অজগর', emoji: '🐍', zone: 'snakes', group: 'Reptiles', sci: 'Python bivittatus', status: 'Vulnerable', diet: 'Carnivore', fact: 'Can grow longer than 5 metres and swallow prey whole.', grad: ['#badc58', '#6ab04c'] },
+  { id: 'peacock', name: 'Indian Peafowl', bn: 'ময়ূর', emoji: '🦚', zone: 'peafowl', group: 'Birds', sci: 'Pavo cristatus', status: 'Least Concern', diet: 'Omnivore', fact: 'The male’s train can hold more than 200 shimmering feathers.', grad: ['#00b894', '#0984e3'] },
+  { id: 'flamingo', name: 'Greater Flamingo', bn: 'ফ্লেমিঙ্গো', emoji: '🦩', zone: 'flamingo', group: 'Birds', sci: 'Phoenicopterus roseus', status: 'Least Concern', diet: 'Omnivore', fact: 'Their pink colour comes from pigments in the food they eat.', grad: ['#ff9ff3', '#f368e0'] },
+  { id: 'hornbill', name: 'Oriental Pied Hornbill', bn: 'ধনেশ পাখি', emoji: '🐦', zone: 'storks', group: 'Birds', sci: 'Anthracoceros albirostris', status: 'Least Concern', diet: 'Omnivore', fact: 'Females seal themselves inside tree holes while nesting.', grad: ['#fdcb6e', '#e17055'] },
+  { id: 'stork', name: 'Black-necked Stork', bn: 'কালোগলা মানিকজোড়', emoji: '🦤', zone: 'storks', group: 'Birds', sci: 'Ephippiorhynchus asiaticus', status: 'Near Threatened', diet: 'Carnivore', fact: 'A tall, glossy wetland bird now very rare in Bangladesh.', grad: ['#74b9ff', '#2d3436'] },
+  { id: 'vulture', name: 'White-rumped Vulture', bn: 'শকুন', emoji: '🦅', zone: 'vulture', group: 'Birds', sci: 'Gyps bengalensis', status: 'Critically Endangered', diet: 'Carnivore', fact: 'Vultures clean the environment by eating carcasses — over 95% have vanished from South Asia.', grad: ['#b2bec3', '#2d3436'] },
+  { id: 'parakeet', name: 'Rose-ringed Parakeet', bn: 'টিয়া', emoji: '🦜', zone: 'aviary', group: 'Birds', sci: 'Psittacula krameri', status: 'Least Concern', diet: 'Herbivore', fact: 'Can learn to mimic human speech.', grad: ['#55efc4', '#00a86b'] },
+  { id: 'duck', name: 'Lesser Whistling Duck', bn: 'সরালি হাঁস', emoji: '🦆', zone: 'northlake', group: 'Birds', sci: 'Dendrocygna javanica', status: 'Least Concern', diet: 'Omnivore', fact: 'Arrives in large flocks every winter — a spectacular sight on the lakes.', grad: ['#74b9ff', '#0984e3'] },
+  { id: 'pelican', name: 'Pelican', bn: 'পেলিকান', emoji: '🦢', zone: 'northlake', group: 'Birds', sci: 'Pelecanus sp.', status: 'Varies', diet: 'Carnivore', fact: 'Its throat pouch can hold more water than its stomach.', grad: ['#dfe6e9', '#74b9ff'], photo: 'pelican-lake' },
 ];
 
 export const TICKETS = [
   { id: 'adult', label: 'Adult', price: 50, note: 'Age 13+' },
   { id: 'child', label: 'Child', price: 20, note: 'Age 3–12' },
   { id: 'student', label: 'Student Group', price: 20, note: 'Per student, with institution letter' },
-  { id: 'aquarium', label: 'Aquarium Entry', price: 20, note: 'Add-on, per person' },
 ];
 
 export const FEEDING_TIMES = [
   { time: '10:30 AM', what: 'Elephant bath & feeding', zone: 'elephant' },
   { time: '11:30 AM', what: 'Hippo feeding', zone: 'hippo' },
-  { time: '12:30 PM', what: 'Bird aviary talk', zone: 'aviary' },
+  { time: '12:30 PM', what: 'Aviary keeper talk', zone: 'aviary' },
   { time: '3:00 PM', what: 'Big cats feeding (tiger & lion)', zone: 'tiger' },
   { time: '3:30 PM', what: 'Crocodile feeding', zone: 'croc' },
 ];
@@ -211,30 +164,4 @@ export const FEEDING_TIMES = [
 export const zoneById = Object.fromEntries(ZONES.map((z) => [z.id, z]));
 export const animalById = Object.fromEntries(ANIMALS.map((a) => [a.id, a]));
 
-// Approximate geo-reference of the illustrated map, centred on the zoo's Google Maps pin.
-const GEO = { latTop: 23.8165, latBottom: 23.8080, lngLeft: 90.3425, lngRight: 90.3513, xL: 140, xR: 1080, yT: 100, yB: 872 };
-export function toLatLng(x, y) {
-  const lat = GEO.latTop + ((y - GEO.yT) / (GEO.yB - GEO.yT)) * (GEO.latBottom - GEO.latTop);
-  const lng = GEO.lngLeft + ((x - GEO.xL) / (GEO.xR - GEO.xL)) * (GEO.lngRight - GEO.lngLeft);
-  return [lat, lng];
-}
-
-// Sample the boundary path into lat/lng points for the satellite view.
-export function boundaryLatLngs(samples = 90) {
-  if (typeof document === 'undefined') return [];
-  const NS = 'http://www.w3.org/2000/svg';
-  const svg = document.createElementNS(NS, 'svg');
-  svg.style.cssText = 'position:absolute;width:0;height:0;visibility:hidden';
-  const p = document.createElementNS(NS, 'path');
-  p.setAttribute('d', BOUNDARY_PATH);
-  svg.appendChild(p);
-  document.body.appendChild(svg);
-  const len = p.getTotalLength();
-  const pts = [];
-  for (let i = 0; i < samples; i++) {
-    const pt = p.getPointAtLength((i / samples) * len);
-    pts.push(toLatLng(pt.x, pt.y));
-  }
-  svg.remove();
-  return pts;
-}
+export const toBnDigits = (s) => String(s).replace(/\d/g, (d) => '০১২৩৪৫৬৭৮৯'[d]);
