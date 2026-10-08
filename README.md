@@ -42,3 +42,7 @@ Before high-traffic production use, switch the street tiles to a provider with a
 - `src/data/zoo.js` – zones (name, Bangla name, coordinates, description, residents), tour order, animals, tickets, feeding times, opening hours.
 - `src/data/photos.js` – photo list with author and licence.
 - Ticket booking and the contact form are front-end only for now (no backend).
+
+## Management system
+
+A separate staff application (online ticketing with payment, gate entry/exit, live dashboard and reports, animal feeding, attendance and leave) lives in [`zoo-management-app/`](zoo-management-app/README.md). It runs on its own: `cd zoo-management-app && npm install && npm run dev`.
